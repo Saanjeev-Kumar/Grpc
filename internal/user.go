@@ -5,18 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"goapp/internal/mongodb"
-	"goapp/internal/mongodb/schema"
+	schema "goapp/internal/mongodb/schema"
+
+	user "goapp/proto/pb"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"goapp/proto/pb"
 )
 
 // CreateUser creates a User and stores in mongodb
 func (s *Server) createUser(ctx context.Context, mongoClient *mongo.Client, req *user.CreateUserRequest) error {
-	userInfo := &userschema.User{}
+	userInfo := &schema.User{}
+	fmt.Println("CreateUser request in mongodb", userInfo)
 	userInfo.ConvertToSchema(req.GetUser())
-	_, err := mongodb.InsertOne(ctx, s.database, "admin", "Users", userInfo)
+	fmt.Println("Convertion to schema")
+	fmt.Println("s.database", s.database)
+	fmt.Println("userInfo", userInfo)
+	_, err := mongodb.InsertOne(ctx, s.database, "admin1", "Users", userInfo)
 	// handle the error
 	if err != nil {
 		return err
@@ -26,11 +31,15 @@ func (s *Server) createUser(ctx context.Context, mongoClient *mongo.Client, req 
 
 // GetUser fetches User details from mongodb
 func (s *Server) getUser(ctx context.Context, mongoClient *mongo.Client, userName string) (*user.User, error) {
-	res, err := mongodb.FindOne(ctx, s.database, "admin", "Users", bson.M{"name": userName})
+	res, err := mongodb.FindOne(ctx, s.database, "admin1", "Users", bson.M{"name": userName})
+	fmt.Println("get request", res)
+	fmt.Println("name", userName)
+	fmt.Println("bson.M name", bson.M{"name": userName})
 	if err != nil {
 		return nil, err
 	}
-	var userInfo *userschema.User
+	var userInfo *schema.User
+	fmt.Println("userInfo", userInfo)
 	if err = res.(*mongo.SingleResult).Decode(&userInfo); err != nil {
 		return nil, err
 	}
@@ -46,16 +55,16 @@ func (s *Server) updateUser(ctx context.Context, mongoClient *mongo.Client, req 
 	fields := bson.M{"$set": updateParams}
 	fmt.Println(fields)
 	fmt.Println(filter)
-	err := mongodb.UpdateOne(ctx, s.database, "admin", "Users", filter, fields)
-	if err != nil {
-		return err
-	}
+	mongodb.UpdateOne(ctx, s.database, "admin1", "Users", filter, fields)
+	// if err != nil {
+	// 	return err
+	// }
 	return nil
 }
 
 // DeleteUser deleltes the user from mongodb
 func (s *Server) deleteUser(ctx context.Context, mongoClient *mongo.Client, userName string) (string, error) {
-	err := mongodb.DeleteOne(ctx, s.database, "admin", "Users", bson.M{"name": userName})
+	err := mongodb.DeleteOne(ctx, s.database, "admin1", "Users", bson.M{"name": userName})
 	if err != nil {
 		return "", err
 	}

@@ -3,9 +3,10 @@ package internal
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/mongo"
-	"goapp/proto/pb"
+	user "goapp/proto/pb"
 	"log"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Server defines the user server
@@ -25,11 +26,31 @@ func NewServer(ctx context.Context, database *mongo.Client) user.UserServiceServ
 
 // CreateUser creates a User and stores in mongodb
 func (s *Server) CreateUser(ctx context.Context, req *user.CreateUserRequest) (*user.CreateUserResponse, error) {
-	log.Printf("Received: %s", req.GetUser())
+	log.Printf("Received in log: %s", req.GetUser())
+	fmt.Println("Received in Print: ", req.GetUser())
+	fmt.Println("request", req, "context", ctx, "database", s.database)
 	err := s.createUser(ctx, s.database, req)
+	/*
+			func (s *Server) createUser(ctx context.Context, mongoClient *mongo.Client, req *user.CreateUserRequest) error {
+			userInfo := &userschema.User{}
+			fmt.Println("CreateUser request in mongodb", userInfo)
+			userInfo.ConvertToSchema(req.GetUser())
+			fmt.Println("Convertion to schema")
+			fmt.Println("s.database", s.database)
+			fmt.Println("userInfo", userInfo)
+			_, err := mongodb.InsertOne(ctx, s.database, "admin", "Users", userInfo)
+			// handle the error
+			if err != nil {
+				return err
+			}
+			return nil
+		}
+	*/
+	fmt.Println("error: ", err)
 	if err != nil {
 		return nil, err
 	} else {
+		fmt.Println("Result of service.go post", &user.CreateUserResponse{User: req.GetUser()})
 		return &user.CreateUserResponse{User: req.GetUser()}, nil
 	}
 }
@@ -37,11 +58,13 @@ func (s *Server) CreateUser(ctx context.Context, req *user.CreateUserRequest) (*
 // GetUser fetches User details from mongodb
 func (s *Server) GetUser(ctx context.Context, req *user.GetUserRequest) (*user.GetUserResponse, error) {
 	log.Printf("Received: %s", req.GetName())
+	fmt.Println("Received ", req.GetName())
 	resp, err := s.getUser(ctx, s.database, req.GetName())
+	fmt.Println("resp++++++++++++++", resp)
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println("Get result of service.go", &user.GetUserResponse{User: resp})
 	return &user.GetUserResponse{User: resp}, nil
 }
 

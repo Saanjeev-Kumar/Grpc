@@ -3,10 +3,10 @@ syntax = "proto3";
 package pb;
 
 // Import Path for buf to generate stubs
-option go_package = "github.com/tutorial/GO-REST-API-With-MongoDB/proto/_generated/user;user";
+option go_package = "goapp/proto/pb";
 
 import "google/api/annotations.proto";
-import "google/api/field_behavior.proto";
+// import "google/api/field_behavior.proto";
 import "google/api/http.proto";
 
 service UserService {
@@ -18,7 +18,7 @@ service UserService {
   }
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {
     option (google.api.http) = {
-      get: "/v1/get_user"
+      get: "/v1/get_user/{name}"
     };
   }
   rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
@@ -28,9 +28,7 @@ service UserService {
     };
   }
   rpc DeleteUser(DeleteUserRequest) returns (DeleteUserResponse) {
-    option (google.api.http) = {
-      delete: "/v1/delete_user/{name}"
-    };
+    option (google.api.http).delete = "/v1/delete_user/{name}";
   }
 }
 
@@ -46,7 +44,7 @@ message User {
   
     // The mobile number of the user.
     int32 mobile_number = 4;
-  
+   
     // Email of user.
     string email_id = 5;
   }
